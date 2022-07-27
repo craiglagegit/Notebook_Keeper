@@ -1,0 +1,78 @@
+# Build the bias calibs:
+
+pipetask run -j 9 -d "detector IN (0..8) AND exposure IN (2022021800015..2022021800019) AND instrument='LSSTComCam' " \
+	 -b /repo/main/butler.yaml -i LSSTComCam/raw/all,LSSTComCam/calib \
+	 -o u/cslage/comcam/bias_20220218 \
+	 -p $CP_PIPE_DIR/pipelines/cpBias.yaml \
+	 -c isr:doDefect=False --register-dataset-types
+
+# Build the dark calibs:
+
+pipetask run -j 9 -d "detector IN (0..8) AND exposure IN (2022021800040..2022021800044) AND instrument='LSSTComCam' " \
+	 -b /repo/main/butler.yaml \
+	 -i LSSTComCam/raw/all,LSSTComCam/calib,u/cslage/comcam/bias_20220218 \
+	 -o u/cslage/comcam/dark_20220218 \
+	 -p $CP_PIPE_DIR/pipelines/cpDark.yaml \
+	 -c isr:doDefect=False -c isr:doCrosstalk=False -c isr:doLinearize=False --register-dataset-types
+
+# Build the defect calibs:
+
+pipetask run -j 9 -d "detector IN (0..8) AND exposure IN (2022021800040..2022021800044,2022021800070..2022021800074) AND instrument='LSSTComCam' " \
+	 -b /repo/main/butler.yaml \
+	 -i LSSTComCam/raw/all,LSSTComCam/calib,u/cslage/comcam/bias_20220218,u/cslage/comcam/dark_20220218 \
+	 -o u/cslage/comcam/defects_20220218 \
+	 -p $CP_PIPE_DIR/pipelines/findDefects.yaml --register-dataset-types
+
+# Build the chained collection
+
+butler collection-chain /repo/main u/cslage/comcam/calib_20220218 \
+       u/cslage/comcam/bias_20220218 \
+       u/cslage/comcam/dark_20220218 \
+       u/cslage/comcam/defects_20220218
+
+# Run the PTC:
+
+pipetask run -j 32 -d "detector IN (0..8) AND instrument='LSSTComCam' AND \
+	 exposure IN (2022021800078..2022021800157) AND exposure.observation_type='flat'" \
+	 -b /repo/main \
+	 -i LSSTComCam/raw/all,LSSTComCam/calib,u/cslage/comcam/calib_20220218 \
+	 -o u/cslage/comcam/ptc_20220218 \
+	 -p $CP_PIPE_DIR/pipelines/measurePhotonTransferCurve.yaml \
+	 -c isr:doFlat=False -c isr:doCrosstalk=False  --register-dataset-types
+
+# Plot the PTCs: Have a python script that runs all 9
+ syntax is: python Plot_PTC_16Feb22.py --date 20220218 --timestamp 20211214T215341Z
+
+# Add the ptc to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/comcam/calib_20220218 \
+       u/cslage/comcam/ptc_20220218
+
+# Build the linearizers:
+
+pipetask run -j 9 -d "detector IN (0..8) AND instrument='LSSTComCam' AND \
+	 exposure=2022021800078" -b /repo/main \
+	 -i LSSTComCam/raw/all,LSSTComCam/calib,u/cslage/comcam/calib_20220218 \
+	 -o u/cslage/comcam/linearizerA_20220218 \
+	 -p $CP_PIPE_DIR/pipelines/cpLinearitySolve.yaml \
+	 -c linearitySolve:linearityType=Spline -c linearitySolve:ignorePtcMask=False \
+	 --register-dataset-types
+
+# Add the linearizer to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/comcam/calib_20220218 \
+       u/cslage/comcam/linearizerA_20220218
+
+# Rerun the PTC:
+
+pipetask run -j 32 -d "detector IN (0..8) AND instrument='LSSTComCam' AND \
+	 exposure IN (2022021800078..2022021800157) AND exposure.observation_type='flat'" \
+	 -b /repo/main \
+	 -i LSSTComCam/raw/all,LSSTComCam/calib,u/cslage/comcam/calib_20220218 \
+	 -o u/cslage/comcam/ptc_linearized_20220218 \
+	 -p $CP_PIPE_DIR/pipelines/measurePhotonTransferCurve.yaml \
+	 -c isr:doFlat=False -c isr:doCrosstalk=False -c isr:doLinearize=True \
+	 --register-dataset-types
+

@@ -1,0 +1,22 @@
+pipelineYaml: /project/cslage/BOT_LSSTCam/pipelines/measurePhotonTransferCurve.yaml
+project: BOT            # I just picked some string that maybe means something to you.
+campaign: PTC           # I just picked some string that maybe means something to you.
+computeSite: ncsapool
+requestMemory: 2048     # can leave this out, but easy to keep updated.
+requestCpus: 1          # can leave this out, but easy to keep updated.
+extraInitOptions: "--no-versions"  # note: non-dev runs should never do this
+extraRunQuantumOptions: "--no-versions"  # note: non-dev runs should never do this
+
+payload:
+  payloadName: test_bps_5      # again this should mean something to you about the input data set + pipeline
+  butlerConfig: /repo/main
+  inCollection: LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/20211117A
+  dataQuery: detector IN (1) AND instrument='LSSTCam' AND exposure IN (3021111500030..3021111500159)
+
+pipetask:
+  assembleCoadd:
+    requestMemory: 4096
+  ptcExtract:
+    requestMemory: 16384
+  ptcSolve:
+    requestMemory: 4096

@@ -1,0 +1,168 @@
+# Build the bias calibs - needed a local cpBias.yaml to turn off doDefect=True:
+
+pipetask run -j 32 -d "detector IN (0..188) AND exposure IN (3021120600560..3021120600571) AND instrument='LSSTCam' " -b /repo/main/butler.yaml -i LSSTCam/raw/all,LSSTCam/calib -o u/cslage/bias_13144 -p /project/cslage/BOT_LSSTCam/pipelines/cpBias.yaml --register-dataset-types
+
+# Ingest the bias calibs:
+
+butler certify-calibrations /repo/main u/cslage/bias_13144 \
+       u/cslage/calib/13144/bias_20211229 --begin-date 1980-01-01 \
+       --end-date 2050-01-01 bias
+
+# Build the dark calibs - needed a local cpDark.yaml to turn off doLinearize, doCrosstalk, and doDefect:
+
+pipetask run -j 32 -d "detector IN (0..188) AND exposure IN (3021120300194,3021120300196) AND instrument='LSSTCam' " -b /repo/main/butler.yaml -i LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/13144 -o u/cslage/dark_13144 -p /project/cslage/BOT_LSSTCam/pipelines/cpDark.yaml --register-dataset-types
+
+# Ingest the dark calibs:
+
+butler certify-calibrations /repo/main u/cslage/dark_13144 \
+       u/cslage/calib/13144/dark_20211229  --begin-date 1980-01-01 \
+       --end-date 2050-01-01 dark
+
+# Build the flat calibs - needed a local cpFlat.yaml to turn off doLinearize, doCrosstalk, and doDefect.  Also added doVignette: false
+
+pipetask run -j 32 -d "detector IN (0..188) AND exposure IN (3021120400010,3021120400011) AND instrument='LSSTCam' " -b /repo/main/butler.yaml -i LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/13144 -o u/cslage/flat_13144 -p /project/cslage/BOT_LSSTCam/pipelines/cpFlat.yaml --register-dataset-types
+
+# Ingest the flat calibs:
+
+butler certify-calibrations /repo/main u/cslage/flat_13144 \
+       u/cslage/calib/13144/flat_20211229  --begin-date 1980-01-01 \
+       --end-date 2050-01-01 flat
+
+# Build the defect calibs.
+
+pipetask run -j 32 -d "detector IN (0..188) AND exposure IN (3021120300194,3021120300196,3021120400010,3021120400011) AND instrument='LSSTCam' " -b /repo/main/butler.yaml -i LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/13144 -o u/cslage/defect_13144 -p $CP_PIPE_DIR/pipelines/findDefects.yaml --register-dataset-types
+
+# Ingest the defect calibs:
+
+butler certify-calibrations /repo/main u/cslage/defect_13144 \
+       u/cslage/calib/13144/defects_20211229  --begin-date 1980-01-01 \
+       --end-date 2050-01-01 defects
+
+
+
+# Build the chained collection
+
+butler collection-chain /repo/main u/cslage/calib/13144/calib.20220103 \
+       u/cslage/calib/13144/bias_20211229 \
+       u/cslage/calib/13144/dark_20211229 \
+       u/cslage/calib/13144/flat_20211229 \
+       u/cslage/calib/13144/defects_20211229
+
+
+# Run the PTC: bps submit bps_13144M.yaml - doLinearize: false for this run (Can I do this from the pipetask command line?)
+
+
+# Plot the PTCs: Have a python script that runs all 189 - Plot_PTC_15Dec21.py
+ syntax is: python Plot_PTC_15Dec21.py --run 13144M --timestamp 20211214T215341Z
+
+# Ingest the ptc:
+
+butler certify-calibrations /repo/main u/cslage/bps_13144M \
+       u/cslage/calib/13144/ptc_20220104  --begin-date 1980-01-01 \
+       --end-date 2050-01-01 ptc
+
+# Add the ptc to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/calib/13144/calib.20220103 \
+       u/cslage/calib/13144/ptc_20220104
+
+# Create the linearizer:
+
+pipetask run -j 32 -d "detector IN (0..188) AND instrument='LSSTCam' AND \
+	 exposure=3021120600576" -b /repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/calib/13144/calib.20220103 \
+	  -o u/cslage/linearizer_20220104 \
+	  -p /project/cslage/BOT_LSSTCam/pipelines/cpLinearitySolve.yaml \
+	  --register-dataset-types
+
+# Ingest the linearizer:
+
+butler certify-calibrations /repo/main u/cslage/linearizer_20220104 \
+       u/cslage/calib/13144/linearizer_20220104  --begin-date 1980-01-01 \
+       --end-date 2050-01-01 linearizer
+
+# Add the linearizer to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/calib/13144/calib.20220103 \
+       u/cslage/calib/13144/linearizer_20220104 
+
+# Remove the PTC from the chain (this probably isn't necessary):
+
+butler collection-chain /repo/main --mode=remove \
+       u/cslage/calib/13144/calib.20220103 \
+       u/cslage/calib/13144/ptc_20220104
+
+# Rerun the PTC: bps submit bps_13144N.yaml - doLinearize: true for this run (Can I do this from the pipetask command line?)
+
+
+
+# Trying linearizer with corrections as Aaron suggested
+
+# Need to return the ptc to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/calib/13144/calib.20220103 \
+       u/cslage/calib/13144/ptc_20220104
+
+# Then re-create the linearizer with the photodiode corrections (2 CCDs only)
+
+pipetask run -j 1 -d "detector IN (55,74) AND instrument='LSSTCam' AND \
+         exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/calib/13144/calib.20220103 \
+          -o u/cslage/linearizer_corrected_20220107 \
+          -p /project/cslage/BOT_LSSTCam/pipelines/cpLinearitySolve.yaml \
+          --register-dataset-types
+
+# Ingest the linearizer:
+
+butler certify-calibrations /repo/main u/cslage/linearizer_corrected_20220107 \
+       u/cslage/calib/13144/linearizer_corrected_20220107  --begin-date 1980-01-01 \
+       --end-date 2050-01-01 linearizer
+
+# Build a new chained collection to avoid confusion
+
+butler collection-chain /repo/main u/cslage/calib/13144/calib.20220107 \
+       u/cslage/calib/13144/bias_20211229 \
+       u/cslage/calib/13144/dark_20211229 \
+       u/cslage/calib/13144/flat_20211229 \
+       u/cslage/calib/13144/defects_20211229 \
+       u/cslage/calib/13144/linearizer_corrected_20220107
+
+# Run the PTC on those two CCDs
+
+pipetask run -j 32 -d "detector IN (55,74) AND instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND exposure.observation_type='flat'" \
+	 -b /repo/main -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/calib/13144/calib.20220107 \
+	  -o u/cslage/bps_13144P \
+	  -p /project/cslage/BOT_LSSTCam/pipelines/measurePhotonTransferCurve.yaml \
+	  --register-dataset-types
+
+# Running again on det 94
+
+pipetask run -j 32 -d "detector IN (94) AND instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND exposure.observation_type='flat'" \
+	 -b /repo/main -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/calib/13144/calib.20220107 \
+	  -o u/cslage/bps_13144P \
+	  -p /project/cslage/BOT_LSSTCam/pipelines/measurePhotonTransferCurve.yaml \
+	  -c isr:doLinearize=True \
+	  --register-dataset-types
+
+# Oops, not the PTC, the linearizer
+
+pipetask run -j 1 -d "detector IN (94) AND instrument='LSSTCam' AND \
+         exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/calib/13144/calib.20220103 \
+          -o u/cslage/linearizer_corrected_20220110 \
+          -p /project/cslage/BOT_LSSTCam/pipelines/cpLinearitySolve.yaml \
+          --register-dataset-types
+
+# Try with crosstalk
+
+pipetask run -j 32 -d "detector IN (139) AND instrument='LSSTCam' AND \
+         exposure IN (3021120600575..3021120700825) AND exposure.observation_type='flat'" \
+         -b /repo/main -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/calib/13144/calib.20220107 \
+          -o u/cslage/bps_13144_CT \
+          -p /project/cslage/BOT_LSSTCam/pipelines/cpPtc_crosstalk.yaml \
+          --register-dataset-types

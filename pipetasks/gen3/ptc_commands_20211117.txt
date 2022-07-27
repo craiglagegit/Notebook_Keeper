@@ -1,0 +1,40 @@
+# Build the bias calibs - needed a local cpBias.yaml to turn off doDefect=True:
+
+pipetask run -j 32 -d "detector IN (0..188) AND exposure IN (3021111500018..3021111500027) AND instrument='LSSTCam' " -b /repo/main/butler.yaml -i LSSTCam/raw/all,LSSTCam/calib -o u/cslage/bias_20211117 -p /project/cslage/BOT_LSSTCam/pipelines/cpBias.yaml --register-dataset-types
+
+# Ingest the bias calibs:
+
+butler certify-calibrations /repo/main u/cslage/bias_20211117 LSSTCam/calib/u/cslage/20211117A --begin-date 1980-01-01 --end-date 2050-01-01 bias
+
+# Build the dark calibs - needed a local cpDark.yaml to turn off doLinearize, doCrosstalk, and doDefect:
+
+pipetask run -j 32 -d "detector IN (0..188) AND exposure IN (3021111400031,3021111400033) AND instrument='LSSTCam' " -b /repo/main/butler.yaml -i LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/20211117A -o u/cslage/dark_20211117 -p /project/cslage/BOT_LSSTCam/pipelines/cpDark.yaml --register-dataset-types
+
+# Ingest the dark calibs:
+
+butler certify-calibrations /repo/main u/cslage/dark_20211117 LSSTCam/calib/u/cslage/20211117A  --begin-date 1980-01-01 --end-date 2050-01-01 dark
+
+# Build the flat calibs - needed a local cpFlat.yaml to turn off doLinearize, doCrosstalk, and doDefect.  Also added doVignette: false
+
+pipetask run -j 32 -d "detector IN (0..188) AND exposure IN (3021111500030,3021111500031) AND instrument='LSSTCam' " -b /repo/main/butler.yaml -i LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/20211117A -o u/cslage/flat_20211117 -p /project/cslage/BOT_LSSTCam/pipelines/cpFlat.yaml --register-dataset-types
+
+# Ingest the flat calibs:
+
+butler certify-calibrations /repo/main u/cslage/flat_20211117 LSSTCam/calib/u/cslage/20211117A  --begin-date 1980-01-01 --end-date 2050-01-01 flat
+
+# Build the defect calibs.
+
+pipetask run -j 32 -d "detector IN (0..188) AND exposure IN (3021111400031,3021111400033,3021111500030,3021111500031) AND instrument='LSSTCam' " -b /repo/main/butler.yaml -i LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/20211117A -o u/cslage/defect_20211117 -p $CP_PIPE_DIR/pipelines/findDefects.yaml --register-dataset-types
+
+# Ingest the defect calibs:
+
+butler certify-calibrations /repo/main u/cslage/defect_20211117 LSSTCam/calib/u/cslage/20211117A  --begin-date 1980-01-01 --end-date 2050-01-01 defects
+
+# Run the PTC: The below failed with not enough memory. Successfully used bps - bps submit bps_13038.yaml
+
+pipetask run -j 32 -d "detector IN (0..188) AND instrument='LSSTCam' AND exposure IN (3021111500030..3021111500159) " -b /repo/main -i LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/20211117A -o u/cslage/ptc_20211117 -p /project/cslage/BOT_LSSTCam/pipelines/measurePhotonTransferCurve.yaml --register-dataset-types
+
+# Plot the PTCs: Have a python script that runs all 189 - Plot_PTC_19Nov21.py
+
+'plotPhotonTransferCurve.py /repo/main/u/cslage/bps_13038/20211119T200658Z/ptc/ptc_LSSTCam_%s_%s_u_cslage_bps_13038_2021\
+1119T200658Z.fits --detNum=%d --outDir=/repo/main/u/cslage/bps_13038/plots'%(RAFT,SENSOR,DETECTOR)

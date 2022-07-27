@@ -1,0 +1,91 @@
+	# Build the bias calibs
+
+pipetask run -j 2 -d "detector IN (55, 74) AND \
+	 exposure IN (3021120600560..3021120600571) \
+	 AND instrument='LSSTCam' " \
+	  -b /repo/main/butler.yaml \
+	  -i LSSTCam/raw/all,LSSTCam/calib \
+	  -o u/cslage/reca/bias_13144 \
+	  -p $CP_PIPE_DIR/pipelines/cpBias.yaml \
+	  -c isr:doDefect=False \
+	  --register-dataset-types
+
+# Start the chained collection
+
+butler collection-chain /repo/main u/cslage/reca/calib_13144_20220621 \
+       u/cslage/reca/bias_13144
+
+# Build the dark calibs
+
+pipetask run -j 2 -d "detector IN (55, 74) AND \
+	 exposure IN (3021120300194,3021120300196) AND \
+	 instrument='LSSTCam' " \
+	 -b /repo/main/butler.yaml \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/reca/calib_13144_20220621 \
+	 -o u/cslage/reca/dark_13144 \
+	 -p $CP_PIPE_DIR/pipelines/cpDark.yaml \
+	 -c isr:doDefect=False -c isr:doLinearize=False -c isr:doCrosstalk=False \
+	 --register-dataset-types
+
+# Add the master dark to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/reca/calib_13144_20220621 \
+       u/cslage/reca/dark_13144
+
+# Build the defect calibs.
+
+pipetask run -j 2 -d "detector IN (55, 74) \
+	 AND exposure IN (3021120300194,3021120300196,3021120400010,3021120400011) \
+	 AND instrument='LSSTCam' " \
+	 -b /repo/main/butler.yaml \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/reca/calib_13144_20220621 \
+	 -o u/cslage/reca/defect_13144 \
+	 -p $CP_PIPE_DIR/pipelines/findDefects.yaml \
+	 --register-dataset-types
+
+# Add the master defect file to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/reca/calib_13144_20220621 \
+       u/cslage/reca/defect_13144
+
+# Run the PTC.  This will take much longer than the others, even with 16 cores: 
+
+pipetask run -j 16 -d "detector IN (55, 74) AND \
+	 instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND \
+	 exposure.observation_type='flat' " \
+	 -b /repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/reca/calib_13144_20220621 \
+	 -o u/cslage/reca/ptc_13144 \
+	 -p $CP_PIPE_DIR/pipelines/cpPtc.yaml \
+	 -c isr:doCrosstalk=False \
+	 --register-dataset-types
+
+# Plot the PTCs: Need to run once for each CCD.  You need to look up the filename and replace the XXXs
+
+plotPhotonTransferCurve.py \
+/repo/main/u/cslage/reca/ptc_13144/2022XXX/ptc/ptc_LSSTCam_RXX_SXX_u_cslage_reca_ptc_13144_2022XXXZ.fits \
+--detNum=55 \
+--outDir=/repo/main/u/cslage/reca/ptc_13144/plots
+
+# Add the ptc to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/reca/calib_13144_20220621 \
+       u/cslage/reca/ptc_13144
+
+# Run the linearizer.  this includes the correction for systematic errors in the photodiode,
+# as discussed in my slides "Linearizers_20Jan22":
+
+pipetask run -j 1 -d "detector IN (55, 74) \
+	 AND instrument='LSSTCam' \
+	 AND exposure=3021120600576" \
+	 -b /repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/reca/ptc_13144 \
+	 -o u/cslage/reca/linearity_13144 \
+	 -p $CP_PIPE_DIR/pipelines/cpLinearityCorrected.yaml \
+	 --register-dataset-types
+
+# At this point, you can add the linearizers to the chain, and re-run the PTC with doLinearity=True

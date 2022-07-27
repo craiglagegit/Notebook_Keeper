@@ -1,0 +1,15 @@
+datastore:
+  cls: lsst.daf.butler.datastores.fileDatastore.FileDatastore
+  records:
+    table: file_datastore_records
+  root: <butlerRoot>
+registry:
+  db: postgresql://lsst-pg-prod1.ncsa.illinois.edu:5432/lsstdb1
+  managers:
+    collections: lsst.daf.butler.registry.collections.nameKey.NameKeyCollectionManager
+    datasets: lsst.daf.butler.registry.datasets.byDimensions.ByDimensionsDatasetRecordStorageManagerUUID
+    attributes: lsst.daf.butler.registry.attributes.DefaultButlerAttributeManager
+    datastores: lsst.daf.butler.registry.bridge.monolithic.MonolithicDatastoreRegistryBridgeManager
+    dimensions: lsst.daf.butler.registry.dimensions.static.StaticDimensionRecordStorageManager
+    opaque: lsst.daf.butler.registry.opaque.ByNameOpaqueTableStorageManager
+  namespace: main_20210215

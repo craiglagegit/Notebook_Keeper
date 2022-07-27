@@ -1,0 +1,43 @@
+# Build the bias calibs:
+
+pipetask run -j 9 -d "detector IN (0..8) AND exposure IN (2022021600160..2022021600164) AND instrument='LSSTComCam' " \
+	 -b /repo/main/butler.yaml -i LSSTComCam/raw/all,LSSTComCam/calib \
+	 -o u/cslage/comcam/bias_20220216A \
+	 -p $CP_PIPE_DIR/pipelines/cpBias.yaml \
+	 -c isr:doDefect=False --register-dataset-types
+
+# Build the dark calibs:
+
+pipetask run -j 9 -d "detector IN (0..8) AND exposure IN (2022021600160..2022021600164) AND instrument='LSSTComCam' " \
+	 -b /repo/main/butler.yaml \
+	 -i LSSTComCam/raw/all,LSSTComCam/calib,u/cslage/comcam/bias_20220216A \
+	 -o u/cslage/comcam/dark_20220216 \
+	 -p $CP_PIPE_DIR/pipelines/cpDark.yaml \
+	 -c isr:doDefect=False -c isr:doCrosstalk=False -c isr:doLinearize=False --register-dataset-types
+
+# Build the defect calibs:
+
+pipetask run -j 9 -d "detector IN (0..8) AND exposure IN (2022021600160..2022021600164,2022021600183..2022021600187) AND instrument='LSSTComCam' " \
+	 -b /repo/main/butler.yaml \
+	 -i LSSTComCam/raw/all,LSSTComCam/calib,u/cslage/comcam/bias_20220216A,u/cslage/comcam/dark_20220216 \
+	 -o u/cslage/comcam/defects_20220216 \
+	 -p $CP_PIPE_DIR/pipelines/findDefects.yaml --register-dataset-types
+
+# Build the chained collection
+
+butler collection-chain /repo/main u/cslage/comcam/calib_20220216 \
+       u/cslage/comcam/bias_20220216A \
+       u/cslage/comcam/dark_20220216 \
+       u/cslage/comcam/defects_20220216
+
+# Run the PTC:
+pipetask run -j 32 -d "detector IN (0..8) AND instrument='LSSTComCam' AND \
+	 exposure IN (2022021600192..2022021600235) AND exposure.observation_type='flat'" \
+	 -b /repo/main \
+	 -i LSSTComCam/raw/all,LSSTComCam/calib,u/cslage/comcam/calib_20220216 \
+	 -o u/cslage/comcam/ptc_20220216 \
+	 -p /project/cslage/BOT_LSSTCam/pipelines/measurePhotonTransferCurve.yaml \
+	 -c isr:doFlat=False -c isr:doCrosstalk=False  --register-dataset-types
+
+# Plot the PTCs: Have a python script that runs all 9
+ syntax is: python Plot_PTC_16Feb22.py --date 20220216 --timestamp 20220218T174634Z

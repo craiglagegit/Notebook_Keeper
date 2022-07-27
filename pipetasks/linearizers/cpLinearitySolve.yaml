@@ -1,0 +1,11 @@
+description: cp_pipe linearity calibration construction.
+tasks:
+  linearitySolve:
+    class: lsst.cp.pipe.LinearitySolveTask
+    config:
+      connections.inputPtc: ptc
+      connections.outputLinearizer: unCorrLinearizer
+      linearityType: Spline
+      ignorePtcMask: False
+      usePhotodiode: True
+      applyPhotodiodeCorrection: False

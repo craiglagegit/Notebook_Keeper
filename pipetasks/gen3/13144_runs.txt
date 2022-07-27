@@ -1,0 +1,35 @@
+Explanation of different runs on BOT run 13144
+
+bps_13144: Initial run which included the biases by mistake - poor results. Has been removed
+
+bps_13144B: Biases removed - good results.
+
+bps_13144C: Fix for early E2V turnoff with DM-32747.  Looks good, but two CCDs (72, 117) failed ptcSolve.
+
+bps_13144D: First run with linearity included.  Failed(linearity not applied) due to naming issue (DM-33041)
+
+bps_13144E: Second run with linearity included. Used hack in linearity.py to change name from 'linearity' to 'linearizer'.
+
+bps_13144F: Third run with linearity included. Used better fix of changing the name in the yaml file.
+
+bps_13144G: Linearizer trial with Mondiode.
+
+bps_13144H: Linearizer trial with Mondiode.
+
+bps_13144J: Linearizer trial with Mondiode.
+
+bps_13144K: Linearizer with the latest fixes.  10 knots, Mondiode, don't ignore ptc mask, DM-32747 fix.
+
+bps_13144L: PTC for 55,74 with linearizer from 13144K.
+
+bps_13144M: Fix for early E2V turnoff with DM-32747.  After fix, all 189 CCDs now run.  This is a goos run without the linearizer.
+
+bps_13144N: Entire focal plane with the linearizer and the monitor diode. 
+
+bps_13144P: Dets 55, 74 run with the linearizer and the monitor diode, and the monitor diode correction fix. 
+
+bps_13144Q: Test of Andrés tickets/DM-31896 branch, which showed large differences which we don't understand.
+
+bps_13144R: Entire focal plane with linearizer correction and Andres' fixes for DM-32746.
+
+bps_13144S: Entire focal plane with linearizer correction using FULLCOVARIANCE.

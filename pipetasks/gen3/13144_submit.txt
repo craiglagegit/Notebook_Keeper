@@ -1,0 +1,31 @@
+(lsst-scipipe) [cslage@lsst-devl02 gen3]$ bps submit bps_13144.yaml
+lsst.ctrl.bps.drivers INFO: Starting submission process
+lsst.ctrl.bps.drivers INFO: Starting acquire stage (generating and/or reading quantum graph)
+lsst.ctrl.bps.pre_transform INFO: Creating quantum graph
+lsst.ctrl.bps.pre_transform INFO: /software/lsstsw/stack_20210813/stack/miniconda3-py38_4.9.2-0.7.0/Linux64/ctrl_mpexec/22.0.1-31-gc0652f0+539c0af985/bin/pipetask --long-log --log-level=VERBOSE qgraph -b /repo/main -i LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/13144 -o u/cslage/bps_13144 --output-run u/cslage/bps_13144/20211214T215341Z -p /project/cslage/BOT_LSSTCam/pipelines/measurePhotonTransferCurve.yaml -q /project/cslage/BOT_LSSTCam/gen3/submit/u/cslage/bps_13144/20211214T215341Z/u_cslage_bps_13144_20211214T215341Z.qgraph -d "detector IN (0..188) AND instrument='LSSTCam' AND exposure IN (3021120600576..3021120700825)" 
+lsst.ctrl.bps.pre_transform INFO: INFO 2021-12-14T18:18:03.747-06:00 lsst.ctrl.mpexec.cmdLineFwk ()(cmdLineFwk.py:581) - QuantumGraph contains 194670 quanta for 3 tasks, graph ID: '1639527395.3486466-2918004'
+
+lsst.ctrl.bps.pre_transform INFO: Completed creating quantum graph: Took 9088.9603 seconds
+lsst.ctrl.bps.pre_transform INFO: Reading quantum graph from '/project/cslage/BOT_LSSTCam/gen3/submit/u/cslage/bps_13144/20211214T215341Z/u_cslage_bps_13144_20211214T215341Z.qgraph'
+lsst.ctrl.bps.pre_transform INFO: Completed reading quantum graph: Took 268.6305 seconds
+lsst.ctrl.bps.drivers INFO: Acquire stage completed: Took 9357.5928 seconds
+lsst.ctrl.bps.drivers INFO: Starting cluster stage (grouping quanta into jobs)
+lsst.ctrl.bps.drivers INFO: Cluster stage completed: Took 30.5102 seconds
+lsst.ctrl.bps.drivers INFO: Starting transform stage (creating generic workflow)
+lsst.ctrl.bps.drivers INFO: Generic workflow name 'u_cslage_bps_13144_20211214T215341Z'
+lsst.ctrl.bps.drivers INFO: Transform stage completed: Took 16.3962 seconds
+lsst.ctrl.bps.drivers INFO: Starting prepare stage (creating specific implementation of workflow)
+lsst.ctrl.bps.wms.htcondor.htcondor_service INFO: Completed HTCondor workflow creation: Took 35.1114 seconds
+lsst.ctrl.bps.wms.htcondor.htcondor_service INFO: Completed writing out HTCondor workflow: Took 169.6554 seconds
+lsst.ctrl.bps.drivers INFO: Prepare stage completed: Took 204.7686 seconds
+Submit dir: /project/cslage/BOT_LSSTCam/gen3/submit/u/cslage/bps_13144/20211214T215341Z
+lsst.ctrl.bps.drivers INFO: Starting submit stage
+lsst.ctrl.bps.submit INFO: Creating execution butler in '/project/cslage/BOT_LSSTCam/gen3/submit/u/cslage/bps_13144/20211214T215341Z/EXEC_REPO-u_cslage_bps_13144_20211214T215341Z'
+lsst.ctrl.bps.submit INFO: Completed creating execution butler: Took 2408.5559 seconds
+lsst.ctrl.bps.submit INFO: Submitting run to a workflow management system for execution
+lsst.ctrl.bps.wms.htcondor.htcondor_service INFO: Submitting from directory: /project/cslage/BOT_LSSTCam/gen3/submit/u/cslage/bps_13144/20211214T215341Z
+lsst.ctrl.bps.submit INFO: Completed submitting to a workflow management system: Took 0.8943 seconds
+lsst.ctrl.bps.drivers INFO: Run 'u_cslage_bps_13144_20211214T215341Z' submitted for execution with id '1533547.0'
+lsst.ctrl.bps.drivers INFO: Completed submit stage: Took 2409.4521 seconds
+lsst.ctrl.bps.drivers INFO: Completed entire submission process: Took 12023.8519 seconds
+Run Id: 1533547.0

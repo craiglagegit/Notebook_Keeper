@@ -1,0 +1,31 @@
+pipelineYaml: /project/cslage/BOT_LSSTCam/pipelines/measurePhotonTransferCurve.yaml
+templateDataId: "{tract}_{patch}_{band}_{visit}_{exposure}_{detector}"
+project: dev
+campaign: quick
+submitPath: ${PWD}/submit/{outputRun}
+computeSite: ncsapool
+requestMemory: 2048
+requestCpus: 1
+
+# Make sure these values correspond to ones in the bin/run_demo.sh's
+# pipetask command line.
+payload:
+  runInit: true
+  payloadName: pcheck2
+  butlerConfig: /repo/main
+  inCollection: LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/20211117A
+  output: "u/${USER}/test_bps_1"
+  outputRun: "{output}/{timestamp}"
+  dataQuery: detector IN (1) AND instrument='LSSTCam' AND exposure IN (3021111500030..3021111500159)
+
+pipetask:
+  pipetaskInit:
+    runQuantumCommand: "${CTRL_MPEXEC_DIR}/bin/pipetask --long-log run -b {butlerConfig} -i {inCollection} --output {output} --output-run {outputRun} --init-only --register-dataset-types --qgraph {qgraphFile} --no-versions"
+  assembleCoadd:
+    requestMemory: 4096
+
+wmsServiceClass: lsst.ctrl.bps.wms.htcondor.htcondor_service.HTCondorService
+clusterAlgorithm: lsst.ctrl.bps.quantum_clustering_funcs.single_quantum_clustering
+createQuantumGraph: '${CTRL_MPEXEC_DIR}/bin/pipetask qgraph -d "{dataQuery}" -b {butlerConfig} -i {inCollection} -p {pipelineYaml} -q {qgraphFile}'
+whenSaveJobQgraph: "NEVER"
+runQuantumCommand: "${CTRL_MPEXEC_DIR}/bin/pipetask --long-log run -b {butlerConfig} --output {output} --output-run {outputRun} --qgraph {qgraphFile} --qgraph-id {qgraphId} --qgraph-node-id {qgraphNodeId} --skip-init-writes --extend-run --clobber-outputs --skip-existing --no-versions"

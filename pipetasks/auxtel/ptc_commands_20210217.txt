@@ -1,0 +1,94 @@
+# Build the bias calibs:
+
+pipetask run -j 8 -d "detector IN (0) AND exposure IN (2021021700060..2021021700067) \
+	 AND instrument='LATISS' " \
+	 -b /repo/main/butler.yaml -i LATISS/raw/all,LATISS/calib \
+	 -o u/cslage/latiss/bias_20210217 \
+	 -p $CP_PIPE_DIR/pipelines/Latiss/cpBias.yaml --register-dataset-types
+
+# Ingest the bias calibs:
+
+butler certify-calibrations /repo/main u/cslage/latiss/bias_20210217 \
+       u/cslage/calib/latiss/bias_20210217 --begin-date 1980-01-01 \
+       --end-date 2050-01-01 bias
+
+# Build the dark calibs:
+
+pipetask run -j 8 -d "detector IN (0) AND exposure IN (2021021700077..2021021700084) \
+	 AND instrument='LATISS' " \
+	 -b /repo/main/butler.yaml -i LATISS/raw/all,LATISS/calib \
+	 -o u/cslage/latiss/dark_20210217 \
+	 -p $CP_PIPE_DIR/pipelines/Latiss/cpDark.yaml \
+	 -c isr:doDefect=False --register-dataset-types
+
+# Ingest the dark calibs:
+
+butler certify-calibrations /repo/main u/cslage/latiss/dark_20210217 \
+       u/cslage/calib/latiss/dark_20210217 --begin-date 1980-01-01 \
+       --end-date 2050-01-01 dark
+
+# Start the chained collection:
+
+butler collection-chain /repo/main u/cslage/calib/latiss/calib.20210217 \
+       u/cslage/calib/latiss/bias_20210217 \
+       u/cslage/calib/latiss/dark_20210217 
+
+# Build the defect calibs:
+
+pipetask run -j 8 -d "detector IN (0) AND exposure IN \
+	 (2021021700077..2021021700080, 2021021700087..2021021700090) \
+	 AND instrument='LATISS' " \
+	 -b /repo/main/butler.yaml \
+	 -i LATISS/raw/all,LATISS/calib,u/cslage/calib/latiss/calib.20210217 \
+	 -o u/cslage/latiss/defects_20210217 \
+	 -p $CP_PIPE_DIR/pipelines/Latiss/findDefects.yaml \
+	 --register-dataset-types
+
+# Ingest the defect calibs:
+
+butler certify-calibrations /repo/main u/cslage/latiss/defects_20210217 \
+       u/cslage/calib/latiss/defects_20210217 --begin-date 1980-01-01 \
+       --end-date 2050-01-01 defects
+
+# Add the defects to the chained collection:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/calib/latiss/calib.20210217 \
+       u/cslage/calib/latiss/defects_20210217
+
+# Build the flat calibs:
+
+pipetask run -j 8 -d "detector IN (0) AND exposure IN (2021021700087..2021021700094) \
+	 AND instrument='LATISS' " \
+	 -b /repo/main/butler.yaml \
+	 -i LATISS/raw/all,LATISS/calib,u/cslage/calib/latiss/calib.20210217 \
+	 -o u/cslage/latiss/flat_20210217 \
+	 -p $CP_PIPE_DIR/pipelines/Latiss/cpFlat.yaml --register-dataset-types
+
+# Ingest the flat calibs:
+
+butler certify-calibrations /repo/main u/cslage/latiss/flat_20210217 \
+       u/cslage/calib/latiss/flat_20210217 --begin-date 1980-01-01 \
+       --end-date 2050-01-01 flat
+
+# Add the flat to the chained collection:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/calib/latiss/calib.20210217 \
+       u/cslage/calib/latiss/flat_20210217 
+
+# Run the PTC: 
+
+pipetask run -j 32 -d "detector IN (0) AND instrument='LATISS' AND \
+	 exposure IN (2021021700096..2021021700135) AND exposure.observation_type='flat'" \
+	 -b /repo/main \
+	 -i LATISS/raw/all,LATISS/calib,LATISS/calib,u/cslage/calib/latiss/calib.20210217 \
+	 -o u/cslage/latiss/ptc_20210217 \
+	 -p /project/cslage/BOT_LSSTCam/pipelines/measurePhotonTransferCurve.yaml \
+	 --register-dataset-types
+
+Plot the PTC:
+
+plotPhotonTransferCurve.py \
+	/repo/main/u/cslage/latiss/ptc_20210217/20220113T011324Z/ptc/ptc_LATISS_RXX_S00_u_cslage_latiss_ptc_20210217_20220113T011324Z.fits \
+	--detNum=0 --outDir=/repo/main/u/cslage/latiss/ptc_20210217/plots

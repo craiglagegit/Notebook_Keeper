@@ -1,0 +1,87 @@
+# Code is now ready. Now re-run it on the whole focal plane
+
+pipetask run -j 16 -d "detector IN (0..188) AND instrument='LSSTCam' AND \
+	 exposure=3021120600576" -b /repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144M \
+	  -o u/cslage/linearizer_28jan22 \
+	  -p $CP_PIPE_DIR/pipelines/cpLinearityCorrected.yaml \
+	  --register-dataset-types
+
+# Now re-run the ptc with the corrected linearizers - bps_13144R.yaml
+
+# Try making BF kernels
+
+pipetask run -j 2 -d "detector IN (55, 74) AND instrument='LSSTCam' AND \
+         exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144M \
+          -o u/cslage/tests/bfkB_01feb22 \
+          -p $CP_PIPE_DIR/pipelines/cpBfkSolve.yaml \
+          --register-dataset-types
+
+# Try making BF kernels with options
+
+pipetask run -j 2 -d "detector IN (55, 74) AND instrument='LSSTCam' AND \
+         exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144M \
+          -o u/cslage/tests/bfkC_01feb22 \
+          -p /project/cslage/BOT_LSSTCam/pipelines/cpBfkSolve.yaml \
+          --register-dataset-types
+
+# Try making BF kernels with options, but without correlationQuadraticFit
+
+pipetask run -j 2 -d "detector IN (55, 74) AND instrument='LSSTCam' AND \
+         exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144M \
+          -o u/cslage/tests/bfkE_01feb22 \
+          -p /project/cslage/BOT_LSSTCam/pipelines/cpBfkSolve.yaml \
+          --register-dataset-types
+
+# Testing:
+
+pipetask run -j 1 -d "detector IN (55) AND instrument='LSSTCam' AND \
+         exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144M \
+          -o u/cslage/tests/bfk_01feb22 \
+          -p /project/cslage/BOT_LSSTCam/pipelines/cpBfkSolve.yaml \
+          --register-dataset-types
+	  -p $CP_PIPE_DIR/pipelines/cpLinearityCorrected.yaml \
+	  --register-dataset-types
+
+# Now re-run the ptc with the corrected linearizers - bps_13144R.yaml
+
+# Try making BF kernels
+
+pipetask run -j 2 -d "detector IN (55, 74) AND instrument='LSSTCam' AND \
+	 exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144M \
+          -o u/cslage/tests/bfkB_01feb22 \
+          -p $CP_PIPE_DIR/pipelines/cpBfkSolve.yaml \
+          --register-dataset-types
+
+# Try making BF kernels with options
+
+pipetask run -j 2 -d "detector IN (55, 74) AND instrument='LSSTCam' AND \
+	 exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144M \
+          -o u/cslage/tests/bfkC_01feb22 \
+          -p /project/cslage/BOT_LSSTCam/pipelines/cpBfkSolve.yaml \
+          --register-dataset-types
+
+# Try making BF kernels with options, but without correlationQuadraticFit
+
+pipetask run -j 2 -d "detector IN (55, 74) AND instrument='LSSTCam' AND \
+	 exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144M \
+          -o u/cslage/tests/bfkE_01feb22 \
+          -p /project/cslage/BOT_LSSTCam/pipelines/cpBfkSolve.yaml \
+          --register-dataset-types
+
+# Testing:
+
+pipetask run -j 1 -d "detector IN (55) AND instrument='LSSTCam' AND \
+         exposure=3021120600576" -b /repo/main \
+         -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144M \
+          -o u/cslage/tests/bfk_01feb22 \
+          -p /project/cslage/BOT_LSSTCam/pipelines/cpBfkSolve.yaml \
+          --register-dataset-types
+

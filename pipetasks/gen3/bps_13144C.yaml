@@ -1,0 +1,19 @@
+pipelineYaml: /project/cslage/BOT_LSSTCam/pipelines/measurePhotonTransferCurve.yaml # Changed to EXPAPPROX
+project: BOT            # I just picked some string that maybe means something to you.
+campaign: PTC           # I just picked some string that maybe means something to you.
+computeSite: ncsapool
+requestMemory: 2048     # can leave this out, but easy to keep updated.
+requestCpus: 1          # can leave this out, but easy to keep updated.
+extraInitOptions: "--no-versions"  # note: non-dev runs should never do this
+extraRunQuantumOptions: "--no-versions"  # note: non-dev runs should never do this
+
+payload:
+  payloadName: bps_13144C      # again this should mean something to you about the input data set + pipeline
+  butlerConfig: /repo/main
+  inCollection: LSSTCam/raw/all,LSSTCam/calib,LSSTCam/calib/u/cslage/13144
+  dataQuery: detector IN (0..188) AND instrument='LSSTCam' AND exposure IN (3021120600575..3021120700825) AND exposure.observation_type='flat' 
+pipetask:
+  assembleCoadd:
+    requestMemory: 4096
+  ptcExtract:
+    requestMemory: 4096
