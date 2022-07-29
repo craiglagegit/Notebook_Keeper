@@ -1,0 +1,24 @@
+NUMBER                 Running object number                                     
+#EXT_NUMBER             FITS extension number
+XWIN_IMAGE             Windowed position estimate along x                         [pixel]
+YWIN_IMAGE             Windowed position estimate along y                                          
+X2_IMAGE
+Y2_IMAGE
+XY_IMAGE
+ERRX2_IMAGE
+ERRY2_IMAGE
+ERRXY_IMAGE
+X2WIN_IMAGE            Windowed variance along x                                  [pixel**2]
+Y2WIN_IMAGE            Windowed variance along y                                  [pixel**2]
+XYWIN_IMAGE            Windowed covariance between x and y
+FLUX_APER
+FLUXERR_APER  
+MAG_AUTO               Kron-like elliptical aperture magnitude                    [mag]
+MAGERR_AUTO            RMS error for AUTO magnitude
+A_IMAGE
+B_IMAGE
+THETA_IMAGE
+FLAGS
+FLUX_MAX
+BACKGROUND
+FLUX_RADIUS
