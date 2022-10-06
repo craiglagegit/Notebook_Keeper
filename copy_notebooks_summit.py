@@ -2,8 +2,8 @@ import sys, os, time
 from subprocess import Popen
 # This code strips the data from the notebooks, and copies them over for pushing to github.
 
-dirs = [["/home/craiglagegit/WORK/ScratchStuff/cslage/summit_notebooks", "/home/craiglagegit/WORK/NotebookKeeper/summit_notebooks"], \
-        ["/scratch/cslage/labJack_notebooks", "/home/craiglagegit/WORK/NotebookKeeper/labjack_notebooks"]]
+dirs = [["/home/craiglagegit/WORK/ScratchStuff/cslage/summit_notebooks", "/home/craiglagegit/WORK/Notebook_Keeper/summit_notebooks"], \
+        ["/scratch/cslage/labJack_notebooks", "/home/craiglagegit/WORK/Notebook_Keeper/labjack_notebooks"]]
 
 for [get_dir, put_dir] in dirs:
         files = os.listdir(get_dir)
