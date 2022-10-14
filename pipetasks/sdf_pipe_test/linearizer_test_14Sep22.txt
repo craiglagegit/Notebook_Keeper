@@ -1,0 +1,10 @@
+# Try running linearizer on data that has already been linearized, as a test of quality of linearizer.
+
+pipetask run -j 2 -d "detector IN (55, 74) AND instrument='LSSTCam' AND \
+	 exposure=3021120600576" \
+	 -b /sdf/group/rubin/repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/bps_13144S \
+	 -o u/cslage/linearizer_test_30sep22 \
+	 -p $CP_PIPE_DIR/pipelines/cpLinearityCorrected.yaml \
+	 --register-dataset-types
+
