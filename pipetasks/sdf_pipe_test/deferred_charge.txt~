@@ -1,0 +1,109 @@
+# Try running CTI correction
+
+pipetask run -j 32 -d "detector IN (55,74) AND instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND exposure.observation_type='flat'" \
+	 -b /sdf/group/rubin/repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/sdf/BOT/calib_13144_20220916 \
+	 -o u/cslage/sdf/BOT/cti_20220916 \
+	 -p $CP_PIPE_DIR/pipelines/cpDeferredCharge.yaml \
+	 --register-dataset-types
+
+
+# Try running CTI correction with Nan fix
+
+pipetask run -j 32 -d "detector IN (55,74) AND instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND exposure.observation_type='flat'" \
+	 -b /sdf/group/rubin/repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/sdf/BOT/calib_13144_20220916 \
+	 -o u/cslage/sdf/BOT/cti_test_20220919 \
+	 -p $CP_PIPE_DIR/pipelines/cpDeferredCharge.yaml \
+	 --register-dataset-types
+
+
+# Try running CTI correction for CCD 11
+
+pipetask run -j 32 -d "detector IN (11) AND instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND exposure.observation_type='flat'" \
+	 -b /sdf/group/rubin/repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/sdf/BOT/defect_11_13144 \
+	 -o u/cslage/sdf/BOT/cti_test_11_20220919 \
+	 -p $CP_PIPE_DIR/pipelines/cpDeferredCharge.yaml \
+	 -c isr:doLinearize=False \
+	 --register-dataset-types
+
+# Add the CTI file to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/sdf/BOT/calib_13144_20220916 \
+       u/cslage/sdf/BOT/cti_20220919
+
+# Run the PTC.  This will take much longer than the others, even with 16 cores: 
+
+pipetask run -j 32 -d "detector IN (55, 74) AND \
+	 instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND \
+	 exposure.observation_type='flat' " \
+	 -b /sdf/group/rubin/repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/sdf/BOT/calib_13144_20220916 \
+	 -o u/cslage/sdf/BOT/ptc_13144_20220919 \
+	 -p $CP_PIPE_DIR/pipelines/cpPtc.yaml \
+	 -c isr:doCrosstalk=False \
+	 -c isr:doDeferredCharge=True \
+	 -c isr:doLinearize=True \
+	 -c ptcSolve:ptcFitType=FULLCOVARIANCE \	 	 
+	 --register-dataset-types
+
+
+	 -c isr:connections.deferredCharge='cpCtiCalib' \
+
+
+
+
+# This failed due to unable to find the deferredCharge object
+
+# Trying again with old calibrations
+
+
+pipetask run -j 32 -d "detector IN (55,74, 11) AND instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND exposure.observation_type='flat'" \
+	 -b /sdf/group/rubin/repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/calib/13144/calib.20220107 \
+	 -o u/cslage/sdf/BOT/cti_20220930 \
+	 -p $CP_PIPE_DIR/pipelines/cpDeferredCharge.yaml \
+	 --register-dataset-types
+
+
+
+# Try running CTI correction for CCD 11 after DM-36280 fix
+
+pipetask run -j 32 -d "detector IN (11) AND instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND exposure.observation_type='flat'" \
+	 -b /sdf/group/rubin/repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/calib/13144/calib.20220107 \
+	 -o u/cslage/sdf/BOT/cti_test_11_20221014 \
+	 -p $CP_PIPE_DIR/pipelines/cpDeferredCharge.yaml \
+	 --register-dataset-types
+
+# Add the CTI file to the chain:
+
+butler collection-chain /repo/main --mode=extend \
+       u/cslage/calib/13144/calib.20220107 \
+       u/cslage/sdf/BOT/cti_test_11_20221014
+
+# Run the PTC.  This will take much longer than the others, even with 16 cores: 
+
+pipetask run -j 32 -d "detector IN (11) AND \
+	 instrument='LSSTCam' AND \
+	 exposure IN (3021120600575..3021120700825) AND \
+	 exposure.observation_type='flat' " \
+	 -b /sdf/group/rubin/repo/main \
+	 -i LSSTCam/raw/all,LSSTCam/calib,u/cslage/calib/13144/calib.20220107 \
+	 -o u/cslage/sdf/BOT/ptc_13144_11_20221014 \
+	 -p $CP_PIPE_DIR/pipelines/cpPtc.yaml \
+	 -c isr:doCrosstalk=False \
+	 -c isr:doDark=False \	 
+	 -c isr:doDeferredCharge=True \
+	 -c isr:doLinearize=True \
+	 -c ptcSolve:ptcFitType=FULLCOVARIANCE \	 	 
+	 --register-dataset-types
+
