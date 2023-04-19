@@ -1,0 +1,48 @@
+========================================================================================
+Report      : INFO
+Date        : 2023-04-11T13:05:46+0000
+Description : Process 'python3.10' <2726> attached to shared memory
+Node        : nb-craiglagegit
+Process     : python3.10 <2726>
+Thread      : main thread 7fad45be2740
+Internals   : P674/6.10.4p2/0ff5e2b/1b268cd/attachToFederatedDomain/u_domain.c/1457/0/1681218346.187521703/0
+========================================================================================
+Report      : INFO
+Date        : 2023-04-11T14:05:31+0000
+Description : Process 'python3.10' <4063> attached to shared memory
+Node        : nb-craiglagegit
+Process     : python3.10 <4063>
+Thread      : main thread 7fb9cec2b740
+Internals   : P674/6.10.4p2/0ff5e2b/1b268cd/attachToFederatedDomain/u_domain.c/1457/0/1681221931.076838659/0
+========================================================================================
+Report      : INFO
+Date        : 2023-04-11T16:34:36+0000
+Description : Process 'python3.10' <4063> detached from shared memory
+Node        : nb-craiglagegit
+Process     : python3.10 <4063>
+Thread      : main thread 7fb9cec2b740
+Internals   : P674/6.10.4p2/0ff5e2b/1b268cd/u__domainDelete/u_domain.c/1862/0/1681230876.970718819/0
+========================================================================================
+Report      : INFO
+Date        : 2023-04-11T16:34:54+0000
+Description : Process 'python3.10' <13007> attached to shared memory
+Node        : nb-craiglagegit
+Process     : python3.10 <13007>
+Thread      : main thread 7fbb1278f740
+Internals   : P674/6.10.4p2/0ff5e2b/1b268cd/attachToFederatedDomain/u_domain.c/1457/0/1681230894.119064224/0
+========================================================================================
+Report      : INFO
+Date        : 2023-04-11T16:38:47+0000
+Description : Process 'python3.10' <2726> detached from shared memory
+Node        : nb-craiglagegit
+Process     : python3.10 <2726>
+Thread      : main thread 7fad45be2740
+Internals   : P674/6.10.4p2/0ff5e2b/1b268cd/u__domainDelete/u_domain.c/1862/0/1681231127.751140675/0
+========================================================================================
+Report      : INFO
+Date        : 2023-04-11T16:38:54+0000
+Description : Process 'python3.10' <13007> detached from shared memory
+Node        : nb-craiglagegit
+Process     : python3.10 <13007>
+Thread      : main thread 7fbb1278f740
+Internals   : P674/6.10.4p2/0ff5e2b/1b268cd/u__domainDelete/u_domain.c/1862/0/1681231134.037600607/0
