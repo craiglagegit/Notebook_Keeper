@@ -6,6 +6,8 @@ from subprocess import Popen
 dirs = [["/sdf/group/rubin/u/cslage/BOT_LSSTCam/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/bot_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/AuxTel/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/auxtel_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/ComCam/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/comcam_notebooks/"], \
+        ["/sdf/group/rubin/u/cslage/MTMount/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/mtmount_notebooks/"], \
+        ["/sdf/group/rubin/u/cslage/MTM1M3/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/mtm1m3_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/BOT_LSSTCam/notebooks/reca", "/home/c/cslage/WORK/Notebook_Keeper/reca_notebooks/"]]
 for [get_dir, put_dir] in dirs:
         files = os.listdir(get_dir)
