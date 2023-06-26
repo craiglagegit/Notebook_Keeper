@@ -30,6 +30,5 @@ for [get_dir, put_dir] in dirs:
                 --output-dir={put_dir} {thisFile}"
                 strip_and_copy = Popen(command, shell=True)
                 Popen.wait(strip_and_copy)
-
 print("Done")
 
