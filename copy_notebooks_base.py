@@ -3,11 +3,11 @@ from pathlib import Path
 from subprocess import Popen
 # This code strips the data from the notebooks, and copies them over for pushing to github.
 
-dirs = [["/home/craiglagegit/notebooks/BOT_LSSTCam", "/home/craiglagegit/WORK/Notebook_Keeper/bot_notebooks/"], \
-        ["/home/craiglagegit/notebooks/AuxTel", "/home/craiglagegit/WORK/Notebook_Keeper/auxtel_notebooks/"], \
-        ["/home/craiglagegit/notebooks/ComCam", "/home/craiglagegit/WORK/Notebook_Keeper/comcam_notebooks/"], \
-        ["/home/craiglagegit/notebooks/MTMount", "/home/craiglagegit/WORK/Notebook_Keeper/mtmount_notebooks/"], \
-        ["/home/craiglagegit/notebooks/MTM1M3", "/home/craiglagegit/WORK/Notebook_Keeper/mtm1m3_notebooks/"]]
+dirs = [["/home/craiglagegit/u/BOT_LSSTCam/notebooks", "/home/craiglagegit/WORK/Notebook_Keeper/bot_notebooks/"], \
+        ["/home/craiglagegit/u/AuxTel/notebooks", "/home/craiglagegit/WORK/Notebook_Keeper/auxtel_notebooks/"], \
+        ["/home/craiglagegit/u/ComCam/notebooks", "/home/craiglagegit/WORK/Notebook_Keeper/comcam_notebooks/"], \
+        ["/home/craiglagegit/u/MTMount/notebooks", "/home/craiglagegit/WORK/Notebook_Keeper/mtmount_notebooks/"], \
+        ["/home/craiglagegit/u/MTM1M3/notebooks", "/home/craiglagegit/WORK/Notebook_Keeper/mtm1m3_notebooks/"]]
 for [get_dir, put_dir] in dirs:
         files = os.listdir(get_dir)
         filesToStore = []
