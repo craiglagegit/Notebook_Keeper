@@ -14,6 +14,7 @@ dirs = [["/sdf/group/rubin/u/cslage/BOT_LSSTCam/notebooks", "/home/c/cslage/WORK
         ["/sdf/group/rubin/u/cslage/MTM2/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/mtm2_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/Rotator/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/rotator_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/LSSTCam/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/lsstcam_notebooks/"], \
+        ["/sdf/group/rubin/u/cslage/Guider_Mode/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/guider_mode_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/BOT_LSSTCam/notebooks/reca", "/home/c/cslage/WORK/Notebook_Keeper/reca_notebooks/"]]
 for [get_dir, put_dir] in dirs:
         files = os.listdir(get_dir)
