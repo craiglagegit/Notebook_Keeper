@@ -4,7 +4,8 @@ from subprocess import Popen
 # This code strips the data from the notebooks, and copies them over for pushing to github.
 
 dirs = [["/home/cslage/summ", "/home/cslage/WORK/Notebook_Keeper/summit_notebooks"], \
-        ["/home/cslage/guider", "/home/cslage/WORK/Notebook_Keeper/summit_guider_notebooks"], \
+        ["/home/cslage/guider/notebooks", "/home/cslage/WORK/Notebook_Keeper/summit_guider_notebooks"], \
+        ["/home/cslage/MTAOS/notebooks", "/home/cslage/WORK/Notebook_Keeper/summit_mtaos_notebooks"], \
         ["/scratch/cslage/labJack_notebooks", "/home/cslage/WORK/Notebook_Keeper/labjack_notebooks"]]
 
 for [get_dir, put_dir] in dirs:
