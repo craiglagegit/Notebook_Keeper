@@ -10,7 +10,7 @@ dirs = [["/sdf/group/rubin/u/cslage/BOT_LSSTCam/notebooks", "/home/c/cslage/WORK
         ["/sdf/group/rubin/u/cslage/MTMount/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/mtmount_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/MTM1M3/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/mtm1m3_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/MTAOS/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/mtaos_notebooks/"], \
-        ["/sdf/group/rubin/u/cslage/Hexapods/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/hexapod_notebooks/"], \
+        ["/sdf/group/rubin/u/cslage/MTAOS/times_square_notebooks", "/home/c/cslage/WORK/Notebook_Keeper/mtaos_timesquare_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/MTM2/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/mtm2_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/Rotator/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/rotator_notebooks/"], \
         ["/sdf/group/rubin/u/cslage/LSSTCam/notebooks", "/home/c/cslage/WORK/Notebook_Keeper/lsstcam_notebooks/"], \
